@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jme's Helpdesk — IT Infrastructure & AI Systems</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1917;color:#e8e0d4;font-family:'IBM Plex Sans',sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:0 2.5rem}
+.topbar{padding:1.5rem 0;border-bottom:0.5px solid rgba(255,255,255,0.08)}
+.topbar-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.topbar-brand{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.08em;color:#e8e0d4}
+.topbar-brand span{color:#C4692A}
+.topbar-links{display:flex;gap:1.5rem}
+.topbar-links a{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:rgba(232,224,212,.5);text-decoration:none;text-transform:uppercase;cursor:pointer}
+.topbar-links a:hover{color:#C4692A}
+.hero{padding:5rem 0 4rem}
+.hero-badge{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:#C4692A;text-transform:uppercase;margin-bottom:1.5rem}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:96px;line-height:.9;letter-spacing:.02em;color:#e8e0d4;margin-bottom:1.75rem}
+.hero-title span{color:#C4692A;display:block}
+.hero-sub{font-size:17px;font-weight:300;color:rgba(232,224,212,.65);line-height:1.75;max-width:520px;margin-bottom:2.5rem}
+.tagline-block{border-left:3px solid #C4692A;padding:1rem 1.25rem;margin-bottom:2.5rem;background:rgba(196,105,42,.06)}
+.tagline-block p{font-family:'IBM Plex Sans',sans-serif;font-size:18px;font-style:italic;font-weight:300;color:#e8e0d4;line-height:1.6}
+.tagline-block small{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(232,224,212,.35);margin-top:6px;display:block}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.05em;padding:12px 24px;background:#C4692A;color:#fff;border:none;cursor:pointer;text-transform:uppercase}
+.btn-primary:hover{background:#d97a3a}
+.btn-ghost{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.05em;padding:12px 24px;background:transparent;color:rgba(232,224,212,.7);border:0.5px solid rgba(232,224,212,.2);cursor:pointer;text-transform:uppercase}
+.btn-ghost:hover{border-color:#C4692A;color:#C4692A}
+.divider{height:.5px;background:rgba(255,255,255,.08)}
+.section{padding:4rem 0}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;color:#C4692A;text-transform:uppercase;margin-bottom:2rem}
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.06)}
+.svc{background:#1a1917;padding:1.75rem 1.5rem}
+.svc-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:rgba(196,105,42,.25);line-height:1;margin-bottom:1rem}
+.svc-title{font-size:15px;font-weight:500;color:#e8e0d4;margin-bottom:.75rem}
+.svc-desc{font-size:13px;font-weight:300;color:rgba(232,224,212,.55);line-height:1.7}
+.svc-soon{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 7px;background:rgba(196,105,42,.15);color:#C4692A;border-radius:2px;margin-left:8px;vertical-align:middle}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;margin-bottom:3rem}
+.stat{border-top:1px solid #C4692A;padding-top:1rem}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:#e8e0d4;line-height:1}
+.stat-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(232,224,212,.4);margin-top:4px;line-height:1.5}
+.story{background:rgba(255,255,255,.03);border-left:3px solid rgba(196,105,42,.4);padding:2rem}
+.story p{font-size:14px;font-weight:300;color:rgba(232,224,212,.65);line-height:1.9}
+.story p+p{margin-top:1rem}
+.contact-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.06)}
+.contact-item{background:#1a1917;padding:1.5rem}
+.contact-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;color:rgba(232,224,212,.3);text-transform:uppercase;margin-bottom:6px}
+.contact-val{font-size:14px;color:#e8e0d4;font-weight:400}
+.contact-val.accent{color:#C4692A}
+
+/* EASTER EGG */
+.easter{padding:3rem 0;text-align:center}
+.easter-code{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:.75rem;user-select:none;flex-wrap:wrap}
+.ec-arrow{font-family:'IBM Plex Mono',monospace;font-size:16px;color:rgba(232,224,212,.45)}
+.ec-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(232,224,212,.45);width:22px;height:22px;border-radius:50%;border:1px solid rgba(232,224,212,.35);display:inline-flex;align-items:center;justify-content:center}
+.ec-start{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(232,224,212,.45);padding:3px 8px;border-radius:20px;border:1px solid rgba(232,224,212,.35);display:inline-flex;align-items:center;justify-content:center}
+.easter-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(232,224,212,.4);margin-bottom:.75rem;letter-spacing:.05em}
+.easter-row{display:flex;justify-content:center;gap:8px}
+.easter-input{font-family:'IBM Plex Mono',monospace;font-size:13px;background:rgba(255,255,255,.04);border:.5px solid rgba(255,255,255,.1);color:#e8e0d4;padding:8px 14px;width:200px;outline:none;letter-spacing:.08em}
+.easter-input::placeholder{color:rgba(232,224,212,.2)}
+.easter-input:focus{border-color:rgba(196,105,42,.4)}
+.easter-btn{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:8px 16px;background:rgba(196,105,42,.15);border:.5px solid rgba(196,105,42,.3);color:#C4692A;cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
+.easter-btn:hover{background:rgba(196,105,42,.25)}
+
+.footer{padding:2rem 0;border-top:.5px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.footer-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.05em;color:#e8e0d4}
+.footer-brand span{color:#C4692A}
+.footer-copy{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(232,224,212,.25)}
+
+/* GAME */
+#game-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center}
+#game-overlay.active{display:flex}
+#game-header{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#C4692A;letter-spacing:.1em;margin-bottom:12px;text-transform:uppercase}
+#game-canvas{border:1px solid rgba(196,105,42,.4);display:block}
+#game-ui{display:flex;justify-content:space-between;width:480px;margin-top:10px}
+#game-score,#game-lives{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(232,224,212,.6);letter-spacing:.05em}
+#game-close{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(232,224,212,.3);margin-top:16px;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;background:none;border:none}
+#game-close:hover{color:#C4692A}
+#game-msg{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#C4692A;letter-spacing:.05em;margin-top:12px;min-height:44px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="topbar"><div class="topbar-inner">
+  <div class="topbar-brand">JME'S <span>HELPDESK</span></div>
+  <div class="topbar-links"><a>Services</a><a>About</a><a>Contact</a></div>
+</div></div></div>
+<div class="divider"></div>
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-badge">Fairfield County, CT &nbsp;·&nbsp; Est. 2024 &nbsp;·&nbsp; Jme's Helpdesk LLC</div>
+    <div class="hero-title">JME'S<span>HELPDESK</span></div>
+    <p class="hero-sub">IT infrastructure, AI systems, and fractional tech leadership for businesses that just need things to work — and stay that way.</p>
+    <div class="tagline-block">
+      <p>"If I do this right, you'll never need to call me again."</p>
+      <small>— The philosophy. Started in EMS. Followed me everywhere.</small>
+    </div>
+    <div class="cta-row">
+      <button class="btn-primary">Get in touch ↗</button>
+      <button class="btn-ghost">See what we do</button>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+<div class="wrap"><div class="section">
+  <div class="section-label">What we do</div>
+  <div class="services">
+    <div class="svc"><div class="svc-num">01</div><div class="svc-title">Fractional IT</div><div class="svc-desc">No full-time IT staff? You don't need one. Get a seasoned pro on call without the overhead. Under 1,000 users, any industry.</div></div>
+    <div class="svc"><div class="svc-num">02</div><div class="svc-title">AI Infrastructure</div><div class="svc-desc">Local AI that stays on your hardware. No cloud, no data leaving the building. Planning, build-out, and ongoing support.</div></div>
+    <div class="svc"><div class="svc-num">03</div><div class="svc-title">AI Call Intake <span class="svc-soon">soon</span></div><div class="svc-desc">Automated after-hours call handling for home-service businesses. Real conversations. Real results. No hold music.</div></div>
+  </div>
+</div></div>
+<div class="divider"></div>
+<div class="wrap"><div class="section">
+  <div class="section-label">The person behind it</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">12+</div><div class="stat-label">Years field EMS & paramedic</div></div>
+    <div class="stat"><div class="stat-num">12+</div><div class="stat-label">Years IT infrastructure</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">Tickets left unresolved</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Problems actually fixed</div></div>
+  </div>
+  <div class="story">
+    <p>I treat every client like family — I want you happy and out of my hair. That's not a joke. It means I'm not here to create dependency or run up hours. I fix the thing, show you why it broke, and make sure it doesn't happen again.</p>
+    <p>That philosophy started in EMS. It followed me into IT. It's how I build everything — including Hearthside, an offline AI assistant built for the people who need it most and can access it least.</p>
+  </div>
+</div></div>
+<div class="divider"></div>
+<div class="wrap"><div class="section">
+  <div class="section-label">Let's talk</div>
+  <div class="contact-grid">
+    <div class="contact-item"><div class="contact-label">Email</div><div class="contact-val accent">jme@jmeshelpdesk.com</div></div>
+    <div class="contact-item"><div class="contact-label">LinkedIn</div><div class="contact-val">linkedin.com/in/jme-n123</div></div>
+    <div class="contact-item"><div class="contact-label">Location</div><div class="contact-val">Fairfield County, CT</div></div>
+    <div class="contact-item"><div class="contact-label">Response time</div><div class="contact-val">Usually same day</div></div>
+  </div>
+</div></div>
+<div class="divider"></div>
+<div class="wrap">
+  <div class="easter">
+    <div class="easter-code">
+      <span class="ec-arrow">↑</span>
+      <span class="ec-arrow">↑</span>
+      <span class="ec-arrow">↓</span>
+      <span class="ec-arrow">↓</span>
+      <span class="ec-arrow">←</span>
+      <span class="ec-arrow">→</span>
+      <span class="ec-arrow">←</span>
+      <span class="ec-arrow">→</span>
+      <span class="ec-btn">B</span>
+      <span class="ec-btn">A</span>
+      <span class="ec-start">START</span>
+    </div>
+    <div class="easter-label">where is this from?</div>
+    <div class="easter-row">
+      <input class="easter-input" id="egg-input" type="text" placeholder="..." maxlength="20" autocomplete="off" spellcheck="false">
+      <button class="easter-btn" id="egg-btn">↵</button>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+<div class="wrap"><div class="footer">
+  <div class="footer-brand">JME'S <span>HELPDESK</span></div>
+  <div class="footer-copy">© 2025 Jme's Helpdesk LLC &nbsp;·&nbsp; Wyoming registered &nbsp;·&nbsp; SAM.gov enrolled</div>
+</div></div>
+
+<!-- GAME OVERLAY -->
+<div id="game-overlay">
+  <div id="game-header">🕹 JME'S ARCADE — USE ← → TO MOVE, SPACE TO SHOOT</div>
+  <canvas id="game-canvas" width="480" height="340"></canvas>
+  <div id="game-ui">
+    <div id="game-score">SCORE: 0</div>
+    <div id="game-lives">LIVES: ❚❚❚</div>
+  </div>
+  <div id="game-msg"></div>
+  <button id="game-close" onclick="closeGame()">[ ESC TO CLOSE ]</button>
+</div>
+
+<script>
+const eggInput=document.getElementById('egg-input');
+const eggBtn=document.getElementById('egg-btn');
+
+function checkEgg(){
+  if(eggInput.value.trim().toLowerCase()==='contra'){
+    eggInput.value='';
+    launchGame();
+  } else {
+    eggInput.style.borderColor='rgba(200,50,50,.5)';
+    setTimeout(()=>eggInput.style.borderColor='rgba(255,255,255,.1)',600);
+    eggInput.value='';
+  }
+}
+eggBtn.addEventListener('click',checkEgg);
+eggInput.addEventListener('keydown',e=>{if(e.key==='Enter')checkEgg();});
+
+const overlay=document.getElementById('game-overlay');
+const canvas=document.getElementById('game-canvas');
+const ctx=canvas.getContext('2d');
+const scoreEl=document.getElementById('game-score');
+const livesEl=document.getElementById('game-lives');
+const msgEl=document.getElementById('game-msg');
+
+let game={running:false,score:0,lives:3,level:1,frame:0};
+let player,bullets,enemies,enemyBullets,keys,animId;
+
+function initGame(){
+  game={running:true,score:0,lives:3,level:1,frame:0};
+  player={x:220,y:300,w:28,h:18,speed:4,shootCooldown:0};
+  bullets=[];enemyBullets=[];keys={};
+  spawnEnemies();
+  msgEl.textContent='';
+  updateUI();
+}
+
+function spawnEnemies(){
+  enemies=[];
+  const cols=8,rows=3;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      enemies.push({x:40+c*50,y:30+r*38,w:24,h:16,dir:1,speed:0.4+game.level*0.15,alive:true,type:r});
+    }
+  }
+}
+
+function drawPlayer(){
+  ctx.fillStyle='#C4692A';
+  ctx.fillRect(player.x,player.y,player.w,player.h);
+  ctx.fillRect(player.x+10,player.y-8,8,8);
+  ctx.fillStyle='#e8e0d4';
+  ctx.fillRect(player.x+2,player.y+4,6,6);
+  ctx.fillRect(player.x+20,player.y+4,6,6);
+}
+
+function drawEnemies(){
+  enemies.forEach(e=>{
+    if(!e.alive)return;
+    const colors=['#7a3a8a','#C4692A','#3a7a5a'];
+    ctx.fillStyle=colors[e.type];
+    ctx.fillRect(e.x,e.y,e.w,e.h);
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.fillRect(e.x+4,e.y+3,4,4);
+    ctx.fillRect(e.x+16,e.y+3,4,4);
+    ctx.fillStyle=colors[e.type];
+    ctx.fillRect(e.x-4,e.y+4,4,8);
+    ctx.fillRect(e.x+e.w,e.y+4,4,8);
+  });
+}
+
+function drawBullets(){
+  ctx.fillStyle='#C4692A';
+  bullets.forEach(b=>ctx.fillRect(b.x,b.y,3,10));
+  ctx.fillStyle='#cc3333';
+  enemyBullets.forEach(b=>ctx.fillRect(b.x,b.y,3,8));
+}
+
+function drawStars(){
+  ctx.fillStyle='rgba(232,224,212,0.3)';
+  for(let i=0;i<40;i++){
+    const sx=(i*137+game.frame*0.3)%480;
+    const sy=(i*97+game.frame*0.5)%340;
+    ctx.fillRect(Math.floor(sx),Math.floor(sy),1,1);
+  }
+}
+
+function update(){
+  if(!game.running)return;
+  game.frame++;
+  if(keys['ArrowLeft']&&player.x>0)player.x-=player.speed;
+  if(keys['ArrowRight']&&player.x<452)player.x+=player.speed;
+  if(player.shootCooldown>0)player.shootCooldown--;
+  if(keys[' ']&&player.shootCooldown===0){
+    bullets.push({x:player.x+12,y:player.y-10,speed:7});
+    player.shootCooldown=14;
+  }
+  bullets=bullets.filter(b=>{b.y-=b.speed;return b.y>-10;});
+  enemyBullets=enemyBullets.filter(b=>{b.y+=4;return b.y<350;});
+  const alive=enemies.filter(e=>e.alive);
+  if(alive.length===0){game.level++;spawnEnemies();msgEl.textContent='LEVEL '+game.level;setTimeout(()=>msgEl.textContent='',1500);return;}
+  let edgeHit=false;
+  alive.forEach(e=>{e.x+=e.dir*e.speed;if(e.x>450||e.x<0)edgeHit=true;});
+  if(edgeHit){alive.forEach(e=>{e.dir*=-1;e.y+=12;});}
+  if(game.frame%60===0&&alive.length>0){
+    const shooter=alive[Math.floor(Math.random()*alive.length)];
+    enemyBullets.push({x:shooter.x+10,y:shooter.y+16});
+  }
+  bullets.forEach((b,bi)=>{
+    enemies.forEach(e=>{
+      if(!e.alive)return;
+      if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){
+        e.alive=false;bullets.splice(bi,1);
+        game.score+=10*game.level;updateUI();
+      }
+    });
+  });
+  enemyBullets.forEach((b,bi)=>{
+    if(b.x>player.x&&b.x<player.x+player.w&&b.y>player.y&&b.y<player.y+player.h){
+      enemyBullets.splice(bi,1);game.lives--;updateUI();
+      if(game.lives<=0){game.running=false;msgEl.textContent='GAME OVER — SCORE: '+game.score;}
+    }
+  });
+  if(enemies.some(e=>e.alive&&e.y+e.h>=player.y)){game.running=false;msgEl.textContent='GAME OVER — SCORE: '+game.score;}
+}
+
+function updateUI(){
+  scoreEl.textContent='SCORE: '+game.score;
+  livesEl.textContent='LIVES: '+'❚'.repeat(Math.max(0,game.lives));
+}
+
+function render(){
+  ctx.fillStyle='#0d0c0b';
+  ctx.fillRect(0,0,480,340);
+  drawStars();
+  ctx.fillStyle='rgba(196,105,42,0.08)';
+  ctx.fillRect(0,280,480,2);
+  drawEnemies();drawBullets();
+  if(game.lives>0)drawPlayer();
+  if(!game.running&&game.frame>0){
+    ctx.fillStyle='rgba(196,105,42,0.15)';
+    ctx.fillRect(100,140,280,60);
+    ctx.fillStyle='#C4692A';
+    ctx.font='bold 14px IBM Plex Mono';
+    ctx.textAlign='center';
+    ctx.fillText('PRESS SPACE TO PLAY AGAIN',240,176);
+    ctx.textAlign='left';
+  }
+}
+
+function loop(){update();render();animId=requestAnimationFrame(loop);}
+
+function launchGame(){
+  overlay.classList.add('active');
+  initGame();
+  document.addEventListener('keydown',handleKey);
+  document.addEventListener('keyup',e=>{keys[e.key]=false;});
+  if(animId)cancelAnimationFrame(animId);
+  loop();
+}
+
+function handleKey(e){
+  keys[e.key]=true;
+  if(e.key===' '){e.preventDefault();if(!game.running)initGame();}
+  if(e.key==='Escape')closeGame();
+}
+
+function closeGame(){
+  overlay.classList.remove('active');
+  if(animId)cancelAnimationFrame(animId);
+  document.removeEventListener('keydown',handleKey);
+  keys={};
+}
+</script>
+</body>
+</html>
