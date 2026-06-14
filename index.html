@@ -351,5 +351,645 @@ function closeGame(){
   keys={};
 }
 </script>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page</title>
+<style>
+  #konami-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #000;
+    z-index: 99999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+  }
+  #konami-overlay.active { display: flex; }
+  #game-canvas {
+    border: 2px solid #0f0;
+    image-rendering: pixelated;
+  }
+  #konami-ui {
+    color: #0f0;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 0 0 8px #0f0;
+  }
+  #konami-ui h2 { margin: 0 0 4px; font-size: 22px; letter-spacing: 3px; }
+  #konami-ui .hud { display: flex; gap: 40px; justify-content: center; font-size: 14px; }
+  #close-btn {
+    margin-top: 10px;
+    background: transparent;
+    border: 1px solid #0f0;
+    color: #0f0;
+    padding: 6px 20px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    letter-spacing: 2px;
+  }
+  #close-btn:hover { background: #0f0; color: #000; }
+  #splash-screen {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    z-index: 10;
+  }
+  #splash-screen h1 { font-size: 32px; letter-spacing: 6px; margin: 0 0 8px; text-shadow: 0 0 10px #0f0; }
+  #splash-screen .sub { font-size: 13px; color: #0a0; margin-bottom: 20px; }
+  #splash-screen .lives-joke { font-size: 18px; color: #ff0; margin: 10px 0; text-shadow: 0 0 8px #ff0; }
+  #splash-screen .start-hint { font-size: 14px; color: #0f0; animation: blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  #gameover-screen {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.85);
+    color: #f00;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    z-index: 10;
+  }
+  #gameover-screen.active { display: flex; }
+  #gameover-screen h2 { font-size: 36px; letter-spacing: 4px; margin: 0 0 10px; text-shadow: 0 0 12px #f00; }
+  #gameover-screen .score-final { font-size: 18px; color: #0f0; margin-bottom: 20px; }
+  #gameover-screen button {
+    background: transparent;
+    border: 1px solid #0f0;
+    color: #0f0;
+    padding: 8px 24px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+  #gameover-screen button:hover { background: #0f0; color: #000; }
+  #level-banner {
+    display: none;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    color: #ff0;
+    font-family: 'Courier New', monospace;
+    font-size: 28px;
+    letter-spacing: 4px;
+    text-shadow: 0 0 10px #ff0;
+    z-index: 11;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+ 
+<div id="konami-overlay">
+  <div id="konami-ui">
+    <h2>&#9760; CONTRA FORCE &#9760;</h2>
+    <div class="hud">
+      <span>LIVES: <span id="hud-lives">3</span></span>
+      <span>SCORE: <span id="hud-score">0</span></span>
+      <span>LEVEL: <span id="hud-level">1</span></span>
+    </div>
+  </div>
+  <div style="position:relative;">
+    <canvas id="game-canvas" width="640" height="360"></canvas>
+    <div id="splash-screen">
+      <h1>CONTRA FORCE</h1>
+      <div class="sub">jmeshelpdesk.com // classified access granted</div>
+      <div class="lives-joke">&#127918; KONAMI CODE DETECTED: +30 LIVES &#127918;<br><span style="font-size:13px;color:#0a0">(just kidding. you get 3. good luck.)</span></div>
+      <div class="start-hint">[ PRESS ENTER OR SPACE TO START ]</div>
+      <div style="font-size:11px;color:#060;margin-top:16px">ARROW KEYS: MOVE &nbsp;|&nbsp; Z: SHOOT &nbsp;|&nbsp; X / UP: JUMP &nbsp;|&nbsp; ESC: EXIT</div>
+    </div>
+    <div id="gameover-screen">
+      <h2>GAME OVER</h2>
+      <div class="score-final" id="final-score-text">SCORE: 0</div>
+      <button onclick="restartGame()">[ PLAY AGAIN ]</button>
+    </div>
+    <div id="level-banner" id="level-banner"></div>
+  </div>
+  <button id="close-btn" onclick="closeGame()">[ ESC ] CLOSE</button>
+</div>
+ 
+<script>
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiIdx = 0;
+ 
+document.addEventListener('keydown', e => {
+  if (e.key === KONAMI[konamiIdx]) {
+    konamiIdx++;
+    if (konamiIdx === KONAMI.length) {
+      konamiIdx = 0;
+      openGame();
+    }
+  } else {
+    konamiIdx = e.key === KONAMI[0] ? 1 : 0;
+  }
+});
+ 
+function openGame() {
+  document.getElementById('konami-overlay').classList.add('active');
+  document.getElementById('splash-screen').style.display = 'flex';
+  document.getElementById('gameover-screen').classList.remove('active');
+}
+ 
+function closeGame() {
+  document.getElementById('konami-overlay').classList.remove('active');
+  if (gameLoop) { cancelAnimationFrame(gameLoop); gameLoop = null; }
+  gameRunning = false;
+}
+ 
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('konami-overlay').classList.contains('active')) {
+    closeGame();
+  }
+});
+ 
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+const W = 640, H = 360;
+const GROUND = H - 48;
+ 
+let gameRunning = false;
+let gameLoop = null;
+let keys = {};
+let score = 0;
+let lives = 3;
+let level = 1;
+let loop = 0;
+let showingSplash = true;
+let showingGameover = false;
+let levelBannerTimer = 0;
+let levelBannerText = '';
+ 
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (showingSplash && (e.key === 'Enter' || e.key === ' ')) {
+    startGame();
+  }
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+ 
+let player, bullets, enemies, enemyBullets, particles, bossState, spawnTimer, bgOffset;
+ 
+function getLevelConfig() {
+  const lvlInLoop = ((level - 1) % 3) + 1;
+  const loopMult = 1 + (loop * 0.3);
+  return {
+    lvl: lvlInLoop,
+    spawnRate: Math.max(40, Math.floor(90 / loopMult)),
+    enemySpeed: 1.2 * loopMult,
+    enemyShoots: lvlInLoop >= 2,
+    hasBoss: lvlInLoop === 3,
+    bgColor: lvlInLoop === 1 ? '#001a00' : lvlInLoop === 2 ? '#00001a' : '#1a0000',
+    groundColor: lvlInLoop === 1 ? '#0a3a0a' : lvlInLoop === 2 ? '#0a0a3a' : '#3a0a0a',
+    enemyColor: lvlInLoop === 1 ? '#f00' : lvlInLoop === 2 ? '#f80' : '#f0f',
+    killsToWin: lvlInLoop === 3 ? 0 : Math.floor(12 * loopMult),
+  };
+}
+ 
+function startGame() {
+  showingSplash = false;
+  document.getElementById('splash-screen').style.display = 'none';
+  document.getElementById('gameover-screen').classList.remove('active');
+  score = 0; lives = 3; level = 1; loop = 0;
+  initLevel();
+  if (!gameLoop) gameLoop = requestAnimationFrame(tick);
+  gameRunning = true;
+  updateHUD();
+}
+ 
+function restartGame() {
+  document.getElementById('gameover-screen').classList.remove('active');
+  startGame();
+}
+ 
+function initLevel() {
+  bgOffset = 0;
+  spawnTimer = 0;
+  bullets = []; enemyBullets = []; enemies = []; particles = [];
+  bossState = null;
+ 
+  player = {
+    x: 80, y: GROUND, w: 20, h: 28,
+    vx: 0, vy: 0,
+    onGround: false,
+    shootCooldown: 0,
+    killCount: 0,
+    invincible: 0,
+    facingRight: true,
+  };
+ 
+  const cfg = getLevelConfig();
+  if (cfg.hasBoss) {
+    spawnBoss();
+  }
+ 
+  levelBannerText = loop === 0 ? `LEVEL ${cfg.lvl}` : `LOOP ${loop+1} - LEVEL ${cfg.lvl}`;
+  levelBannerTimer = 120;
+  document.getElementById('level-banner').textContent = levelBannerText;
+  document.getElementById('level-banner').style.display = 'block';
+  updateHUD();
+}
+ 
+function spawnBoss() {
+  bossState = {
+    x: W - 80, y: GROUND - 30, w: 50, h: 58,
+    hp: 30 + loop * 10,
+    maxHp: 30 + loop * 10,
+    vx: -1, vy: 0,
+    phase: 0,
+    shootTimer: 0,
+    dead: false,
+  };
+}
+ 
+function updateHUD() {
+  document.getElementById('hud-lives').textContent = lives;
+  document.getElementById('hud-score').textContent = score;
+  document.getElementById('hud-level').textContent = level;
+}
+ 
+function spawnEnemy() {
+  const cfg = getLevelConfig();
+  const onGround = Math.random() > 0.25;
+  enemies.push({
+    x: W + 20,
+    y: onGround ? GROUND : GROUND - 60 - Math.random() * 80,
+    w: 18, h: 24,
+    vx: -cfg.enemySpeed,
+    vy: onGround ? 0 : 1,
+    hp: 1,
+    shootTimer: Math.floor(Math.random() * 80),
+    flying: !onGround,
+    color: cfg.enemyColor,
+  });
+}
+ 
+function tick() {
+  if (!gameRunning) return;
+  update();
+  draw();
+  gameLoop = requestAnimationFrame(tick);
+}
+ 
+function update() {
+  const cfg = getLevelConfig();
+ 
+  bgOffset -= 1;
+ 
+  if (levelBannerTimer > 0) {
+    levelBannerTimer--;
+    if (levelBannerTimer === 0) document.getElementById('level-banner').style.display = 'none';
+  }
+ 
+  // Player movement
+  player.vx = 0;
+  if (keys['ArrowLeft']) { player.vx = -3.5; player.facingRight = false; }
+  if (keys['ArrowRight']) { player.vx = 3.5; player.facingRight = true; }
+  if ((keys['ArrowUp'] || keys['x'] || keys['X']) && player.onGround) {
+    player.vy = -9;
+    player.onGround = false;
+  }
+  player.vy += 0.45;
+  player.x += player.vx;
+  player.y += player.vy;
+  if (player.x < 0) player.x = 0;
+  if (player.x > W - player.w) player.x = W - player.w;
+  if (player.y >= GROUND) { player.y = GROUND; player.vy = 0; player.onGround = true; }
+  if (player.shootCooldown > 0) player.shootCooldown--;
+  if (player.invincible > 0) player.invincible--;
+ 
+  if ((keys['z'] || keys['Z']) && player.shootCooldown === 0) {
+    bullets.push({ x: player.x + (player.facingRight ? player.w : 0), y: player.y - player.h * 0.5, vx: player.facingRight ? 8 : -8, vy: 0 });
+    player.shootCooldown = 10;
+  }
+ 
+  // Bullets
+  bullets = bullets.filter(b => b.x > -10 && b.x < W + 10);
+  bullets.forEach(b => { b.x += b.vx; b.y += b.vy; });
+ 
+  // Enemy bullets
+  enemyBullets = enemyBullets.filter(b => b.x > -10 && b.x < W + 10 && b.y < H);
+  enemyBullets.forEach(b => { b.x += b.vx; b.y += b.vy; });
+ 
+  // Spawn enemies
+  if (!cfg.hasBoss) {
+    spawnTimer++;
+    if (spawnTimer >= cfg.spawnRate) { spawnTimer = 0; spawnEnemy(); }
+  }
+ 
+  // Update enemies
+  enemies.forEach(en => {
+    en.x += en.vx;
+    if (en.flying) {
+      en.vy += 0.05;
+      en.y += en.vy;
+      if (en.y >= GROUND) { en.y = GROUND; en.vy = -2; }
+      if (en.y < GROUND - 120) en.vy += 0.1;
+    }
+ 
+    if (cfg.enemyShoots) {
+      en.shootTimer--;
+      if (en.shootTimer <= 0) {
+        en.shootTimer = 60 + Math.floor(Math.random() * 60);
+        enemyBullets.push({ x: en.x, y: en.y - en.h * 0.5, vx: -3, vy: 0 });
+      }
+    }
+ 
+    // Bullet hits enemy
+    bullets.forEach((b, bi) => {
+      if (rectsOverlap(b, {x:b.x-4,y:b.y-4,w:8,h:8}, en, en)) {
+        en.hp--;
+        bullets.splice(bi, 1);
+        spawnParticles(en.x + en.w/2, en.y - en.h/2, en.color, 5);
+      }
+    });
+  });
+ 
+  // Remove dead enemies
+  const deadEnemies = enemies.filter(en => en.hp <= 0 || en.x < -40);
+  deadEnemies.forEach(en => {
+    if (en.hp <= 0) { score += 100; player.killCount++; updateHUD(); }
+  });
+  enemies = enemies.filter(en => en.hp > 0 && en.x > -40);
+ 
+  // Boss
+  if (bossState && !bossState.dead) {
+    bossState.x += bossState.vx;
+    if (bossState.x < W/2 - 20 || bossState.x > W - 80) bossState.vx *= -1;
+ 
+    bossState.shootTimer--;
+    if (bossState.shootTimer <= 0) {
+      bossState.shootTimer = Math.max(20, 40 - loop * 5);
+      enemyBullets.push({ x: bossState.x, y: bossState.y - 10, vx: -4, vy: 0 });
+      enemyBullets.push({ x: bossState.x, y: bossState.y - 10, vx: -3, vy: -2 });
+      enemyBullets.push({ x: bossState.x, y: bossState.y - 10, vx: -3, vy: 2 });
+    }
+ 
+    bullets.forEach((b, bi) => {
+      if (rectsOverlap({x:b.x-4,y:b.y-4,w:8,h:8}, {x:b.x-4,y:b.y-4,w:8,h:8}, bossState, bossState)) {
+        bossState.hp--;
+        bullets.splice(bi, 1);
+        spawnParticles(bossState.x + bossState.w/2, bossState.y - bossState.h/2, '#f0f', 3);
+        score += 10; updateHUD();
+        if (bossState.hp <= 0) {
+          bossState.dead = true;
+          score += 1000;
+          spawnParticles(bossState.x + bossState.w/2, bossState.y - bossState.h/2, '#ff0', 30);
+          updateHUD();
+          setTimeout(() => nextLevel(), 1500);
+        }
+      }
+    });
+ 
+    // Player-boss collision
+    if (player.invincible === 0 && rectsOverlap(
+      {x: player.x, y: player.y - player.h, w: player.w, h: player.h},
+      {x: player.x, y: player.y - player.h, w: player.w, h: player.h},
+      {x: bossState.x, y: bossState.y - bossState.h, w: bossState.w, h: bossState.h},
+      {x: bossState.x, y: bossState.y - bossState.h, w: bossState.w, h: bossState.h}
+    )) { playerHit(); }
+  }
+ 
+  // Level win condition (non-boss)
+  if (!cfg.hasBoss && player.killCount >= cfg.killsToWin) {
+    player.killCount = 0;
+    nextLevel();
+  }
+ 
+  // Enemy-player collision
+  if (player.invincible === 0) {
+    enemies.forEach(en => {
+      if (rectsOverlap(
+        {x: player.x, y: player.y - player.h, w: player.w, h: player.h},
+        {x: player.x, y: player.y - player.h, w: player.w, h: player.h},
+        {x: en.x, y: en.y - en.h, w: en.w, h: en.h},
+        {x: en.x, y: en.y - en.h, w: en.w, h: en.h}
+      )) { playerHit(); }
+    });
+ 
+    // Enemy bullet hits player
+    enemyBullets.forEach((b, bi) => {
+      if (player.invincible === 0 && Math.abs(b.x - (player.x + player.w/2)) < 14 && Math.abs(b.y - (player.y - player.h/2)) < 18) {
+        enemyBullets.splice(bi, 1);
+        playerHit();
+      }
+    });
+  }
+ 
+  // Particles
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.life--; });
+}
+ 
+function rectsOverlap(a, _a, b, _b) {
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+ 
+function playerHit() {
+  if (player.invincible > 0) return;
+  lives--;
+  updateHUD();
+  spawnParticles(player.x + player.w/2, player.y - player.h/2, '#0f0', 10);
+  if (lives <= 0) {
+    gameOver();
+  } else {
+    player.invincible = 120;
+    player.x = 80; player.y = GROUND; player.vx = 0; player.vy = 0;
+  }
+}
+ 
+function gameOver() {
+  gameRunning = false;
+  document.getElementById('final-score-text').textContent = 'SCORE: ' + score;
+  document.getElementById('gameover-screen').classList.add('active');
+}
+ 
+function nextLevel() {
+  const cfg = getLevelConfig();
+  if (cfg.lvl === 3) {
+    loop++;
+  }
+  level++;
+  enemies = []; enemyBullets = []; bullets = []; particles = [];
+  bossState = null;
+  initLevel();
+  gameRunning = true;
+}
+ 
+function spawnParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 5,
+      vy: (Math.random() - 0.5) * 5 - 2,
+      color,
+      life: 20 + Math.floor(Math.random() * 20),
+    });
+  }
+}
+ 
+function draw() {
+  const cfg = getLevelConfig();
+ 
+  // Background
+  ctx.fillStyle = cfg.bgColor;
+  ctx.fillRect(0, 0, W, H);
+ 
+  // Scrolling bg lines
+  ctx.strokeStyle = 'rgba(0,255,0,0.05)';
+  ctx.lineWidth = 1;
+  for (let x = (bgOffset % 40); x < W; x += 40) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+ 
+  // Stars
+  ctx.fillStyle = 'rgba(0,255,0,0.3)';
+  for (let i = 0; i < 30; i++) {
+    const sx = ((i * 97 + bgOffset * 0.3) % W + W) % W;
+    const sy = (i * 47) % (GROUND - 20);
+    ctx.fillRect(sx, sy, 1, 1);
+  }
+ 
+  // Ground
+  ctx.fillStyle = cfg.groundColor;
+  ctx.fillRect(0, GROUND + 2, W, H - GROUND);
+  ctx.fillStyle = '#0f0';
+  ctx.fillRect(0, GROUND, W, 2);
+ 
+  // Platform hints (decorative)
+  ctx.fillStyle = 'rgba(0,255,0,0.15)';
+  for (let px = ((bgOffset * 0.5) % 200 + 200) % 200; px < W; px += 200) {
+    ctx.fillRect(px, GROUND - 70, 80, 8);
+  }
+ 
+  // Player
+  const px = player.x, py = player.y;
+  const alpha = player.invincible > 0 ? (Math.floor(player.invincible / 6) % 2 === 0 ? 0.3 : 1) : 1;
+  ctx.globalAlpha = alpha;
+  // Body
+  ctx.fillStyle = '#0f0';
+  ctx.fillRect(px, py - player.h, player.w, player.h);
+  // Head
+  ctx.fillStyle = '#0d0';
+  ctx.fillRect(px + 3, py - player.h - 10, 14, 10);
+  // Gun
+  ctx.fillStyle = '#0f0';
+  if (player.facingRight) ctx.fillRect(px + player.w, py - player.h + 6, 8, 4);
+  else ctx.fillRect(px - 8, py - player.h + 6, 8, 4);
+  // Eyes
+  ctx.fillStyle = '#000';
+  if (player.facingRight) ctx.fillRect(px + 9, py - player.h - 7, 3, 3);
+  else ctx.fillRect(px + 2, py - player.h - 7, 3, 3);
+  ctx.globalAlpha = 1;
+ 
+  // Bullets
+  ctx.fillStyle = '#ff0';
+  bullets.forEach(b => {
+    ctx.fillRect(b.x - 4, b.y - 2, 8, 4);
+  });
+ 
+  // Enemy bullets
+  ctx.fillStyle = '#f80';
+  enemyBullets.forEach(b => {
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+  });
+ 
+  // Enemies
+  enemies.forEach(en => {
+    ctx.fillStyle = en.color;
+    ctx.fillRect(en.x, en.y - en.h, en.w, en.h);
+    // Enemy head
+    ctx.fillStyle = en.color;
+    ctx.fillRect(en.x + 2, en.y - en.h - 8, 14, 8);
+    // Eye
+    ctx.fillStyle = '#000';
+    ctx.fillRect(en.x + 3, en.y - en.h - 6, 3, 3);
+    // Gun pointing left
+    ctx.fillStyle = en.color;
+    ctx.fillRect(en.x - 6, en.y - en.h + 6, 6, 3);
+    if (en.flying) {
+      // Wings
+      ctx.fillStyle = en.color;
+      ctx.globalAlpha = 0.5;
+      ctx.fillRect(en.x - 8, en.y - en.h + 4, 8, 6);
+      ctx.fillRect(en.x + en.w, en.y - en.h + 4, 8, 6);
+      ctx.globalAlpha = 1;
+    }
+  });
+ 
+  // Boss
+  if (bossState && !bossState.dead) {
+    const bx = bossState.x, by = bossState.y;
+    ctx.fillStyle = '#f0f';
+    ctx.fillRect(bx, by - bossState.h, bossState.w, bossState.h);
+    // Boss head
+    ctx.fillStyle = '#d0d';
+    ctx.fillRect(bx + 5, by - bossState.h - 16, 40, 16);
+    // Boss eyes
+    ctx.fillStyle = '#ff0';
+    ctx.fillRect(bx + 8, by - bossState.h - 13, 8, 8);
+    ctx.fillRect(bx + 24, by - bossState.h - 13, 8, 8);
+    // HP bar
+    const hpPct = bossState.hp / bossState.maxHp;
+    ctx.fillStyle = '#300';
+    ctx.fillRect(W/2 - 100, 10, 200, 10);
+    ctx.fillStyle = hpPct > 0.5 ? '#0f0' : hpPct > 0.25 ? '#ff0' : '#f00';
+    ctx.fillRect(W/2 - 100, 10, Math.floor(200 * hpPct), 10);
+    ctx.strokeStyle = '#0f0';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(W/2 - 100, 10, 200, 10);
+    ctx.fillStyle = '#0f0';
+    ctx.font = '10px Courier New';
+    ctx.fillText('BOSS', W/2 - 12, 10);
+  }
+ 
+  // Particles
+  particles.forEach(p => {
+    ctx.globalAlpha = p.life / 40;
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+  });
+  ctx.globalAlpha = 1;
+ 
+  // Kill progress bar (non-boss levels)
+  if (!cfg.hasBoss && !bossState) {
+    const prog = Math.min(player.killCount / cfg.killsToWin, 1);
+    ctx.fillStyle = 'rgba(0,255,0,0.1)';
+    ctx.fillRect(10, H - 20, W - 20, 8);
+    ctx.fillStyle = '#0f0';
+    ctx.fillRect(10, H - 20, Math.floor((W - 20) * prog), 8);
+    ctx.font = '9px Courier New';
+    ctx.fillStyle = '#0f0';
+    ctx.fillText(`KILLS: ${player.killCount}/${cfg.killsToWin}`, 14, H - 13);
+  }
+ 
+  // Loop indicator
+  if (loop > 0) {
+    ctx.fillStyle = '#ff0';
+    ctx.font = '10px Courier New';
+    ctx.fillText(`LOOP ${loop+1}`, W - 56, 14);
+  }
+}
+</script>
+</body>
+</html>
 </body>
 </html>
